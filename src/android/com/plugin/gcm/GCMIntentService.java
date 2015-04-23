@@ -12,8 +12,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.graphics.BitmapFactory;
 
 import com.google.android.gcm.GCMBaseIntentService;
+
+import org.eatthisone.app.android.R;
 
 @SuppressLint("NewApi")
 public class GCMIntentService extends GCMBaseIntentService {
@@ -97,16 +100,31 @@ public class GCMIntentService extends GCMBaseIntentService {
 				defaults = Integer.parseInt(extras.getString("defaults"));
 			} catch (NumberFormatException e) {}
 		}
-		
-		NotificationCompat.Builder mBuilder =
-			new NotificationCompat.Builder(context)
-				.setDefaults(defaults)
-				.setSmallIcon(context.getApplicationInfo().icon)
-				.setWhen(System.currentTimeMillis())
-				.setContentTitle(extras.getString("title"))
-				.setTicker(extras.getString("title"))
-				.setContentIntent(contentIntent)
-				.setAutoCancel(true);
+
+        NotificationCompat.Builder mBuilder;
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.LOLLIPOP) {
+            // The colourful icon.
+            mBuilder = new NotificationCompat.Builder(context)
+                    .setDefaults(defaults)
+                    .setSmallIcon(context.getApplicationInfo().icon)
+                    .setWhen(System.currentTimeMillis())
+                    .setContentTitle(extras.getString("title"))
+                    .setTicker(extras.getString("title"))
+                    .setContentIntent(contentIntent)
+                    .setAutoCancel(true);
+        } else {
+            // Greyed large icon from Android 5.0 setting the background to green
+             mBuilder = new NotificationCompat.Builder(context)
+                    .setDefaults(defaults)
+                    .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.notification))
+                    .setSmallIcon(R.drawable.notification)
+                    .setWhen(System.currentTimeMillis())
+                    .setContentTitle(extras.getString("title"))
+                    .setTicker(extras.getString("title"))
+                    .setContentIntent(contentIntent)
+                    .setAutoCancel(true);
+
+        }
 
 		String message = extras.getString("message");
 		if (message != null) {
